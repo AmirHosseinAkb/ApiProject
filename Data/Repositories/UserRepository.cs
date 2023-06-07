@@ -1,4 +1,5 @@
-﻿using Data.Contracts;
+﻿using Common.Utilities;
+using Data.Contracts;
 using Entities.User;
 
 namespace Data.Repositories
@@ -9,6 +10,12 @@ namespace Data.Repositories
         public UserRepository(MyApiContext context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task AddUser(string password, User user, CancellationToken cancellationToken)
+        {
+            user.PasswordHash = SecurityHelper.HashPasswordSHA256(password);
+            await AddAsync(user, cancellationToken);
         }
     }
 }
