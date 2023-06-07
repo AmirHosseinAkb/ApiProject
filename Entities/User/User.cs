@@ -7,6 +7,7 @@ namespace Entities.User
         public User()
         {
             IsActive = true;
+            LastLoginDate= DateTime.Now;
         }
         
         [Required]
