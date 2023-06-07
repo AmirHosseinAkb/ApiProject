@@ -12,10 +12,18 @@ namespace Server.Controllers
             _userRepository = userRepository;
         }
 
-        public IActionResult Get()
+        [HttpGet]
+        public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            return null;
+            var users=_userRepository.TableNoTracking;
+            return Ok(users);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id,CancellationToken cancellationToken)
+        {
+            var user =await _userRepository.GetByIdAsync(cancellationToken,id);
+            return Ok(user);
+        }
     }
 }
