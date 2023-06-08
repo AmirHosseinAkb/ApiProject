@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using System.Reflection.Metadata.Ecma335;
+using Common;
 using Common.Utilities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,6 +48,10 @@ namespace WebFramework.Api
         {
             return new ApiResult(false, ApiResultStatusCode.NotFound);
         }
+
+        public static implicit operator ApiResult(NotFoundObjectResult result)
+            => new ApiResult(false, ApiResultStatusCode.NotFound, result.Value.ToString());
+
         #endregion
     }
 
