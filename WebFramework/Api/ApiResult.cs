@@ -50,7 +50,7 @@ namespace WebFramework.Api
         #endregion
     }
 
-    public class ApiResult<TData>:ApiResult
+    public class ApiResult<TData>:ApiResult where TData:class
     {
         public ApiResult(bool isSucceeded,ApiResultStatusCode statusCode,TData data,string message=null):base(isSucceeded, statusCode, message)
         {
