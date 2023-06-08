@@ -1,6 +1,7 @@
 ﻿using Data.Contracts;
 using Entities.User;
 using Microsoft.AspNetCore.Mvc;
+using WebFramework.Api;
 using WebFramework.Dtos;
 
 namespace Server.Controllers
@@ -17,14 +18,14 @@ namespace Server.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get(CancellationToken cancellationToken)
+        public async Task<ApiResult<List<User>>> Get(CancellationToken cancellationToken)
         {
             var users=_userRepository.TableNoTracking;
-            return Ok(users);
+            return Ok(users.ToList());
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id,CancellationToken cancellationToken)
+        public async Task<ApiResult<User>> Get(int id,CancellationToken cancellationToken)
         {
             var user =await _userRepository.GetByIdAsync(cancellationToken,id);
             if(user == null)
@@ -33,8 +34,10 @@ namespace Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(UserDto user, CancellationToken cancellationToken)
+        public async Task<ApiResult> Create(UserDto user, CancellationToken cancellationToken)
         {
+            if (_userRepository.IsExist(u => u.UserName == user.UserName))
+                return BadRequest("این کاربر از قبل وجود دارد");
             var newUser = new User()
             {
                 UserName = user.UserName,
@@ -43,7 +46,17 @@ namespace Server.Controllers
                 Gender = user.Gender,
             };
             await _userRepository.AddUser(user.Password, newUser, cancellationToken);
-            return Ok(user);
+            return Ok();
+        }
+
+        [HttpPut]
+        public async Task<ApiResult> Delete(int id,CancellationToken cancellationToken)
+        {
+            var user =await _userRepository.GetByIdAsync(cancellationToken,id);
+            if (user == null)
+                return NotFound("کاربر مورد نظر یافت نشد");
+            await _userRepository.DeleteAsync(user, cancellationToken);
+            return Ok();
         }
     }
 }
