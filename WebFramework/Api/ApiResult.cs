@@ -16,9 +16,9 @@ namespace WebFramework.Api
         public bool IsSucceeded { get; set; }
     }
 
-    public class ApiResult<TData>
+    public class ApiResult<TData>:ApiResult
     {
-        public ApiResult(TData data)
+        public ApiResult(bool isSucceeded,ApiResultStatusCode statusCode,TData data,string message=null):base(isSucceeded, statusCode, message)
         {
             Data = data;
         }
