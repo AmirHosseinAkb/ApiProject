@@ -3,11 +3,13 @@ using Entities.User;
 using Microsoft.AspNetCore.Mvc;
 using WebFramework.Api;
 using WebFramework.Dtos;
+using WebFramework.Filters;
 
 namespace Server.Controllers
 {
     [Route("api/[Controller]")]
     [ApiController]
+    [ApiResultFilter]
     public class UserController : Controller
     {
         private readonly IUserRepository _userRepository;
