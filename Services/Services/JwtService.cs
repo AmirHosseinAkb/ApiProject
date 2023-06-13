@@ -1,26 +1,34 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Common;
 using Entities.User;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Services.Services
 {
     public class JwtService : IJwtService
     {
+        private readonly JwtSettings _jwtSettings;
+
+        public JwtService(IOptionsSnapshot<SiteSettings> siteSettings)
+        {
+            _jwtSettings = siteSettings.Value.JwtSettings;
+        }
         public string Generate(User user)
         {
-            var securityKey = Encoding.UTF8.GetBytes("AmirHosseinAkb20");
+            var securityKey = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
             var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(securityKey)
                 , SecurityAlgorithms.HmacSha256Signature);
 
             var descriptor = new SecurityTokenDescriptor()
             {
-                Issuer = "Licensify.ir",
-                Audience = "Licensify.ir",
+                Issuer = _jwtSettings.Issuer,
+                Audience = _jwtSettings.Audience,
                 IssuedAt = DateTime.Now,
-                NotBefore = DateTime.Now.AddMinutes(10),
-                Expires = DateTime.Now.AddDays(7),
+                NotBefore = DateTime.Now.AddMinutes(_jwtSettings.NotBeforeMinutes),
+                Expires = DateTime.Now.AddDays(_jwtSettings.ExpirationDays),
                 SigningCredentials = signingCredentials,
                 Subject = new ClaimsIdentity(_getClaims(user))
             };
