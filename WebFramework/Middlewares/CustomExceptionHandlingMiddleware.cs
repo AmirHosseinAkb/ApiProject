@@ -24,10 +24,9 @@ namespace WebFramework.Middlewares
 
         public async Task Invoke(HttpContext httpContext)
         {
-            string message=null;
-
-            var httpStatusCode=HttpStatusCode.InternalServerError;
-            var apiResultStatusCode=ApiResultStatusCode.ServerError;
+            string message = null;
+            var apiResultStatusCode = ApiResultStatusCode.ServerError;
+            var httpStatusCode = HttpStatusCode.InternalServerError;
 
             try
             {
@@ -35,87 +34,95 @@ namespace WebFramework.Middlewares
             }
             catch (AppException exception)
             {
-                
-                _logger.LogError(exception.Message,exception);
-                if(_env.IsDevelopment())
+                apiResultStatusCode = exception.ApiStatusCode;
+                httpStatusCode = exception.HttpStatusCode;
+
+                if (_env.IsDevelopment())
                 {
-                    httpStatusCode=exception.HttpStatusCode;
-                    apiResultStatusCode=exception.ApiStatusCode;
+                    var dic = new Dictionary<string, string>();
+                    dic["Message"] = exception.Message;
+                    dic["StackTrace"] = exception.StackTrace;
 
-                    var dic=new Dictionary<string,string>();
-
-                    dic["Exception"]=exception.Message;
-                    dic["StackTrace"]=exception.StackTrace;
-
-                    if(exception.InnerException!=null)
+                    if (exception.InnerException != null)
                     {
-                        dic["InnerException.Exception"]=exception.InnerException.Message;
-                        dic["InnerException.StackTrace"]=exception.InnerException.StackTrace;
+                        dic["InnerException.Message"] = exception.InnerException.Message;
+                        dic["InnerException.StackTrace"] = exception.InnerException.StackTrace;
                     }
+
                     if (exception.AdditionalData != null)
-                    {
-                        dic["AdditionalData"]=JsonConvert.SerializeObject(exception.AdditionalData);
-                    }
-                    message=JsonConvert.SerializeObject(dic);
+                        dic["AdditionalDate"] = JsonConvert.SerializeObject(exception.AdditionalData);
+                    message = JsonConvert.SerializeObject(dic);
                 }
                 else
-                {
-                    message=exception.Message;
-                }
-                await WriteToResponseAsync();
-            }
-            catch(UnauthorizedAccessException exception)
-            {
-                _logger.LogError(exception.Message,exception);
-                await SetUnAuthorizedResponse(exception);
-                await WriteToResponseAsync();
-            }
-            catch(SecurityTokenExpiredException exception)
-            {
-                _logger.LogError(exception.Message,exception);
-                await SetUnAuthorizedResponse(exception);
-                await WriteToResponseAsync();
-            }
-            catch(Exception exception)
-            {
-                _logger.LogError(exception.Message,exception);
-                var result=new ApiResult(false,Common.ApiResultStatusCode.ServerError);
-                await httpContext.Response.WriteAsync(JsonConvert.SerializeObject(result));
-            }
+                    message = exception.Message;
 
+                _logger.LogError(message, exception);
+                await WriteToResponseAsync();
+            }
+            catch (UnauthorizedAccessException exception)
+            {
+                await SetUnAuthorizedResponse(exception);
+                await WriteToResponseAsync();
+            }
+            catch (SecurityTokenExpiredException exception)
+            {
+                await SetUnAuthorizedResponse(exception);
+                await WriteToResponseAsync();
+            }
+            catch (Exception exception)
+            {
+                if (_env.IsDevelopment())
+                {
+                    var dic = new Dictionary<string, string>();
+                    dic["Message"] = exception.Message;
+                    dic["StackTrace"] = exception.StackTrace;
+                    if (exception.InnerException != null)
+                    {
+                        dic["InnerException.Message"] = exception.InnerException.Message;
+                        dic["InnerException.StackTrace"] = exception.InnerException.StackTrace;
+                    }
+                    message = JsonConvert.SerializeObject(dic);
+                }
+                else
+                    message = exception.Message;
+
+                _logger.LogError(message, exception);
+                await WriteToResponseAsync();
+            }
 
             async Task WriteToResponseAsync()
             {
-                if(httpContext.Response.HasStarted)
-                    await httpContext.Response.WriteAsync("The Respnse Process Has Started");
-
-                var result=new ApiResult(false,apiResultStatusCode,message);
-                var json=JsonConvert.SerializeObject(result);
-                httpContext.Response.StatusCode=(int)httpStatusCode;
-                httpContext.Response.ContentType="application/json";
+                if (httpContext.Response.HasStarted)
+                    await httpContext.Response.WriteAsync("The Response Process Has Started");
+                var result = new ApiResult(false, apiResultStatusCode, message);
+                httpContext.Response.StatusCode = (int) httpStatusCode;
+                httpContext.Response.ContentType = "application/json";
+                var json = JsonConvert.SerializeObject(result);
                 await httpContext.Response.WriteAsync(json);
             }
 
-            async Task SetUnAuthorizedResponse(Exception ex)
+            async Task SetUnAuthorizedResponse(Exception exception)
             {
-                httpStatusCode=HttpStatusCode.Unauthorized;
-                apiResultStatusCode=ApiResultStatusCode.UnAuthorized;
+                httpStatusCode = HttpStatusCode.Unauthorized;
+                apiResultStatusCode = ApiResultStatusCode.UnAuthorized;
                 if (_env.IsDevelopment())
                 {
-                    var dic=new Dictionary<string,string>();
-                    dic["Message"]=ex.Message;
-                    dic["StackTrace"]=ex.StackTrace;
-
-                    if (ex.InnerException != null)
+                    var dic = new Dictionary<string, string>();
+                    dic["Message"] = exception.Message;
+                    dic["StackTrace"] = exception.StackTrace;
+                    if (exception.InnerException != null)
                     {
-                        dic["InnerException.Message"]=ex.InnerException.Message;
-                        dic["InnerException.StackTrace"]=ex.InnerException.StackTrace;
+                        dic["InnerException.Message"] = exception.InnerException.Message;
+                        dic["InnerException.StackTrace"] = exception.InnerException.StackTrace;
                     }
 
-                    if(ex is SecurityTokenExpiredException exception)
-                        dic["Expired"]=exception.Expires.ToString();
-                    message=JsonConvert.SerializeObject(dic);
+                    if (exception is SecurityTokenExpiredException ex)
+                        dic["Expires"] = ex.Expires.ToString();
+                    message = JsonConvert.SerializeObject(dic);
                 }
+                else
+                    message = exception.Message;
+                _logger.LogError(message, exception);
             }
         }
     }
