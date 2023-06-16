@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -7,8 +8,9 @@ namespace WebFramework.Configurations;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddJwtAuthentication(this IServiceCollection services)
+    public static void AddJwtAuthentication(this IServiceCollection services,SiteSettings siteSettings)
     {
+        var jwtSettings = siteSettings.JwtSettings;
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -16,16 +18,16 @@ public static class ServiceCollectionExtensions
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(options =>
         {
-            var secretKey = Encoding.UTF8.GetBytes("AmirHossein200");
+            var secretKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
             var validationParameters = new TokenValidationParameters()
             {
                 ClockSkew = TimeSpan.Zero,
                 RequireSignedTokens = true,
                 IssuerSigningKey = new SymmetricSecurityKey(secretKey),
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = "Licensify.ir",
+                ValidIssuer = jwtSettings.Issuer,
                 ValidateIssuer = true,
-                ValidAudience = "Licensify.ir",
+                ValidAudience = jwtSettings.Audience,
                 ValidateAudience = true,
                 RequireExpirationTime = true,
                 ValidateLifetime = true
