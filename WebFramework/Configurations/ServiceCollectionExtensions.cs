@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         }).AddJwtBearer(options =>
         {
             var secretKey = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+            var decryptKey = Encoding.UTF8.GetBytes(siteSettings.JwtSettings.EncryptKey);
             var validationParameters = new TokenValidationParameters()
             {
                 ClockSkew = TimeSpan.Zero,
@@ -30,7 +31,8 @@ public static class ServiceCollectionExtensions
                 ValidAudience = jwtSettings.Audience,
                 ValidateAudience = true,
                 RequireExpirationTime = true,
-                ValidateLifetime = true
+                ValidateLifetime = true,
+                TokenDecryptionKey = new SymmetricSecurityKey(decryptKey)
             };
             options.RequireHttpsMetadata = false;
             options.SaveToken = true;
