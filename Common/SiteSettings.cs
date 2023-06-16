@@ -13,5 +13,6 @@
         public int ExpirationDays { get; set; }
         public int NotBeforeMinutes { get; set; }
         public string SecretKey { get; set; }
+        public string EncryptKey { get; set; }
     }
 }
