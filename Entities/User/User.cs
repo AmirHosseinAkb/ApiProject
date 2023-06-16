@@ -7,11 +7,8 @@ namespace Entities.User
         public User()
         {
             IsActive = true;
-<<<<<<< Updated upstream
             LastLoginDate= DateTime.Now;
-=======
             SecurityStamp = Guid.NewGuid();
->>>>>>> Stashed changes
         }
         
         [Required]
