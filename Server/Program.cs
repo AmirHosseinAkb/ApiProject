@@ -1,11 +1,13 @@
+using System.Drawing.Text;using Common;
 using Data;
 using Data.Contracts;
+using Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
+// Add services to the container.
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -20,8 +22,14 @@ builder.Services.AddDbContext<MyApiContext>(options =>
 
 #region IOC
 
-builder.Services.AddScoped<IUserRepository, IUserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+#endregion
+
+#region SiteSettingsConfigs
+SiteSettings _siteSettings;
+_siteSettings = builder.Configuration.GetSection(nameof(SiteSettings)).Get<SiteSettings>();
+builder.Services.Configure<SiteSettings>(builder.Configuration.GetSection(nameof(SiteSettings)));
 #endregion
 
 var app = builder.Build();
