@@ -7,7 +7,11 @@ namespace Entities.User
         public User()
         {
             IsActive = true;
+<<<<<<< Updated upstream
             LastLoginDate= DateTime.Now;
+=======
+            SecurityStamp = Guid.NewGuid();
+>>>>>>> Stashed changes
         }
         
         [Required]
@@ -23,6 +27,8 @@ namespace Entities.User
         public GenderType Gender { get; set; }
         public bool IsActive { get; set; }
         public DateTimeOffset? LastLoginDate { get; set; }
+        public Guid SecurityStamp { get; set; }
+
 
         public ICollection<Post.Post> Posts { get; set; }
     }
