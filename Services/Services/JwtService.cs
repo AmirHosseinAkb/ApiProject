@@ -21,7 +21,9 @@ namespace Services.Services
             var securityKey = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
             var signingCredentials = new SigningCredentials(new SymmetricSecurityKey(securityKey)
                 , SecurityAlgorithms.HmacSha256Signature);
-
+            var encryptKey=Encoding.UTF8.GetBytes(_jwtSettings.EncryptKey);
+            var encryptingCredentials = new EncryptingCredentials(new SymmetricSecurityKey(encryptKey),
+                SecurityAlgorithms.Aes128KW, SecurityAlgorithms.Aes128CbcHmacSha256);
             var descriptor = new SecurityTokenDescriptor()
             {
                 Issuer = _jwtSettings.Issuer,
@@ -30,6 +32,7 @@ namespace Services.Services
                 NotBefore = DateTime.Now.AddMinutes(_jwtSettings.NotBeforeMinutes),
                 Expires = DateTime.Now.AddDays(_jwtSettings.ExpirationDays),
                 SigningCredentials = signingCredentials,
+                EncryptingCredentials = encryptingCredentials,
                 Subject = new ClaimsIdentity(_getClaims(user))
             };
             var tokenHandler = new JwtSecurityTokenHandler();
