@@ -17,5 +17,11 @@ namespace Data.Repositories
             user.PasswordHash = SecurityHelper.HashPasswordSHA256(password);
             await AddAsync(user, cancellationToken);
         }
+
+        public Task UpdateSecurityStamp(User user, CancellationToken cancellationToken)
+        {
+            user.SecurityStamp = Guid.NewGuid();
+            return base.UpdateAsync(user, cancellationToken);
+        }
     }
 }
