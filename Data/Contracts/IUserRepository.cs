@@ -6,5 +6,6 @@ namespace Data.Contracts
     {
         Task AddUser(string password,User user,CancellationToken  cancellationToken);
         Task UpdateSecurityStamp(User user, CancellationToken cancellationToken);
+        Task UpdateLastLoginDateAsync(User user,CancellationToken cancellationToken);
     }
 }

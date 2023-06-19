@@ -23,5 +23,11 @@ namespace Data.Repositories
             user.SecurityStamp = Guid.NewGuid();
             return base.UpdateAsync(user, cancellationToken);
         }
+
+        public  Task UpdateLastLoginDateAsync(User user, CancellationToken cancellationToken)
+        {
+            user.LastLoginDate=DateTime.Now;
+            return UpdateAsync(user, cancellationToken);
+        }
     }
 }
